@@ -48,17 +48,8 @@ export function HeroSection() {
               WebkitTextFillColor: "transparent",
             }}
           >
-            Pare de perder
-          </span>{" "}
-          seu{" "}
-          <span
-            style={{
-              background: "linear-gradient(135deg, #006904, #1f8b2f)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            fim de semana
+            teste
+          </span>
           </span>{" "}
           planejando aula de Ciências
         </h1>
