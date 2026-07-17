@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { Component, useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,6 @@ import {
   Zap,
   Check,
   Wallet,
-  ExternalLink,
   Mail,
   Download,
 } from "lucide-react";
@@ -29,6 +28,28 @@ import {
   confirmPurchase,
   type PixPaymentData,
 } from "@/lib/pix.server";
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null };
+  static getDerivedStateFromError(error: Error) {
+    console.error("[ErrorBoundary]", error);
+    return { error };
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="p-8 text-center space-y-4">
+          <p className="text-lg font-bold text-red-600">Algo deu errado</p>
+          <p className="text-sm text-muted-foreground">{this.state.error.message}</p>
+          <Button onClick={() => this.setState({ error: null })} variant="outline">
+            Tentar novamente
+          </Button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 type PlanInfo = {
   name: string;
@@ -136,6 +157,7 @@ export function PixPaymentModal({
 
   const handleGeneratePix = useCallback(async () => {
     if (!email.includes("@")) return;
+    console.log("[PixPaymentModal] handleGeneratePix", { email, plan: plan.name, amount: plan.amount });
     setStep("loading");
     setErrorMsg("");
 
@@ -175,6 +197,7 @@ export function PixPaymentModal({
       setErrorMsg(
         err instanceof Error ? err.message : "Erro ao gerar pagamento PIX"
       );
+      console.error("[PixPaymentModal] createPixPayment error:", err);
       setStep("error");
     }
   }, [email, plan.name, plan.amount, stopTimers, handlePaid]);
@@ -224,6 +247,7 @@ export function PixPaymentModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      <ErrorBoundary>
       <DialogContent
         className="sm:max-w-[500px] p-0 gap-0 overflow-hidden rounded-2xl max-h-[95vh] overflow-y-auto"
       >
@@ -592,6 +616,7 @@ export function PixPaymentModal({
           </div>
         )}
       </DialogContent>
+      </ErrorBoundary>
     </Dialog>
   );
 }
