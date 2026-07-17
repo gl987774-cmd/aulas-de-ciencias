@@ -67,7 +67,7 @@ export async function sendAccessEmail(data: {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          from: from,
+          from: `BioAtividades <${from}>`,
           to: data.email,
           subject: `Seu acesso ao ${data.planName} foi liberado! 🎉`,
           html: `
