@@ -18,8 +18,6 @@ async function getServerEntry(): Promise<ServerEntry> {
   return serverEntryPromise;
 }
 
-// h3 swallows in-handler throws into a normal 500 Response with body
-// {"unhandled":true,"message":"HTTPError"} — try/catch alone never fires for those.
 async function normalizeCatastrophicSsrResponse(response: Response): Promise<Response> {
   if (response.status < 500) return response;
   const contentType = response.headers.get("content-type") ?? "";
@@ -44,9 +42,77 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+// Webhook handler for Mercado Pago
+async function handlePixWebhook(request: Request): Promise<Response> {
+  try {
+    const body = await request.json() as { action?: string; data?: { id?: number } };
+    const paymentId = body?.data?.id;
+    if (!paymentId) {
+      return new Response(JSON.stringify({ error: "missing payment id" }), { status: 400 });
+    }
+
+    const token = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+    if (!token) {
+      return new Response(JSON.stringify({ error: "MP not configured" }), { status: 500 });
+    }
+
+    const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!mpRes.ok) {
+      return new Response(JSON.stringify({ error: "failed to fetch payment" }), { status: 502 });
+    }
+
+    const payment = await mpRes.json();
+    if (payment.status !== "approved") {
+      return new Response(JSON.stringify({ received: true, status: payment.status }), { status: 200 });
+    }
+
+    // Dynamically import store + email to avoid blocking SSR startup
+    const { getOrderByPayment, confirmOrder, markEmailSent } = await import("./lib/store.server");
+    const { sendAccessEmail, buildAccessUrl } = await import("./lib/email.server");
+
+    const existing = getOrderByPayment(paymentId);
+    if (!existing) {
+      return new Response(JSON.stringify({ received: true, note: "order not found (polling will handle)" }), { status: 200 });
+    }
+
+    if (existing.paid) {
+      return new Response(JSON.stringify({ received: true, note: "already paid" }), { status: 200 });
+    }
+
+    confirmOrder(paymentId);
+
+    const host = process.env.SITE_URL || "localhost:3000";
+    const accessUrl = buildAccessUrl(host, existing.accessToken);
+
+    const emailSent = await sendAccessEmail({
+      email: existing.email,
+      name: existing.name,
+      planName: existing.planName,
+      accessUrl,
+    });
+
+    if (emailSent) {
+      markEmailSent(paymentId);
+    }
+
+    return new Response(JSON.stringify({ received: true, confirmed: true, emailSent }), { status: 200 });
+  } catch (err) {
+    console.error("[WEBHOOK] Error:", err);
+    return new Response(JSON.stringify({ error: "internal error" }), { status: 500 });
+  }
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const url = new URL(request.url);
+      if (url.pathname === "/api/pix-webhook" && request.method === "POST") {
+        return handlePixWebhook(request);
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

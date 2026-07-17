@@ -1,9 +1,6 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Check, ShoppingCart } from "lucide-react";
-
-const PREMIUM_URL = "https://ggcheckout.app/checkout/v2/MGdkhlWHNrT7TMH9M7jd";
-const BASIC_URL = "https://ggcheckout.app/checkout/v2/2ctXtprCPS0LXcEOCn5r";
-const UPSELL_URL = "https://ggcheckout.app/checkout/v2/hV12xwguSspuTOvHnRku";
+import { PixPaymentModal } from "./PixPaymentModal";
 
 const basicFeatures = [
   "150 dinâmicas de Ciências prontas para uso",
@@ -27,14 +24,29 @@ const premiumFeatures = [
 ];
 
 export function PricingSection() {
+  const [pixModal, setPixModal] = useState<{
+    open: boolean;
+    plan: { name: string; amount: number; externalUrl?: string };
+  }>({ open: false, plan: { name: "", amount: 0 } });
+
+  function openPix(plan: { name: string; amount: number; externalUrl?: string }) {
+    setPixModal({ open: true, plan });
+  }
+
+  function closeUpsell() {
+    const overlay = document.getElementById("upsellOverlay");
+    if (!overlay) return;
+    overlay.classList.remove("show");
+    overlay.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
   useEffect(() => {
     const overlay = document.getElementById("upsellOverlay");
     const closeBtn = document.getElementById("upsellClose");
     if (!overlay) return;
     function closeModal() {
-      overlay.classList.remove("show");
-      overlay.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
+      closeUpsell();
     }
     closeBtn?.addEventListener("click", closeModal);
     overlay.addEventListener("click", function (e) {
@@ -129,22 +141,27 @@ export function PricingSection() {
               ))}
             </ul>
 
-            <a
-              href={PREMIUM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl px-6 py-4 font-heading font-bold uppercase tracking-wide text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
+            <button
+              onClick={() => openPix({ name: "Premium", amount: 27.90, externalUrl: "https://ggcheckout.app/checkout/v2/MGdkhlWHNrT7TMH9M7jd" })}
+              className="mt-7 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-6 py-4 font-heading font-bold uppercase tracking-wide text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
               style={{ background: "linear-gradient(135deg, #006904 0%, #1f8b2f 100%)" }}
             >
               <ShoppingCart className="h-5 w-5" />
               QUERO O PACOTE COMPLETO
-            </a>
+            </button>
             <p className="mt-4 text-center text-xs text-muted-foreground">
               🔒 Pagamento 100% seguro · 🛡️ 7 dias de garantia incondicional
             </p>
           </div>
         </div>
       </div>
+
+      {/* PIX Payment Modal */}
+      <PixPaymentModal
+        open={pixModal.open}
+        onOpenChange={(open) => setPixModal((prev) => ({ ...prev, open }))}
+        plan={pixModal.plan}
+      />
 
       {/* ===== Popup Upsell (Essencial -> Premium) ===== */}
       <div className="upsell-overlay" id="upsellOverlay" aria-hidden="true">
@@ -167,8 +184,26 @@ export function PricingSection() {
             <li>Acesso vitalício com todas as atualizações futuras incluídas</li>
           </ul>
           <div className="upsell-actions">
-            <a href={UPSELL_URL} target="_blank" rel="noopener noreferrer" className="upsell-btn-accept" id="upsellAccept">Sim! Quero o Completo por R$19,90 →</a>
-            <a href={BASIC_URL} target="_blank" rel="noopener noreferrer" className="upsell-btn-decline" id="upsellDecline">Não, prefiro continuar só com o Essencial</a>
+            <button
+              onClick={() => {
+                closeUpsell();
+                openPix({ name: "Premium (Oferta upsell)", amount: 19.90, externalUrl: "https://ggcheckout.app/checkout/v2/hV12xwguSspuTOvHnRku" });
+              }}
+              className="upsell-btn-accept"
+              id="upsellAccept"
+            >
+              Sim! Quero o Completo por R$19,90 →
+            </button>
+            <button
+              onClick={() => {
+                closeUpsell();
+                openPix({ name: "Essencial", amount: 10, externalUrl: "https://ggcheckout.app/checkout/v2/2ctXtprCPS0LXcEOCn5r" });
+              }}
+              className="upsell-btn-decline"
+              id="upsellDecline"
+            >
+              Não, prefiro continuar só com o Essencial
+            </button>
           </div>
           <div className="upsell-timer">⏳ Esta condição é exibida apenas uma vez</div>
         </div>
