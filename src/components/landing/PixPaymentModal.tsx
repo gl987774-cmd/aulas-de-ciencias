@@ -377,24 +377,21 @@ export function PixPaymentModal({
 
         {/* QR Code */}
         {step === "qr" && pixData && (
-          <div className="p-6 space-y-5">
-            <div className="text-center space-y-1">
-              <DialogTitle className="text-lg font-heading font-bold">
-                Escaneie o QR Code
+          <div>
+            {/* Header */}
+            <div className="bg-gradient-to-r from-emerald-600 to-emerald-500 px-6 py-4 text-center">
+              <DialogTitle className="text-lg font-heading font-bold text-white">
+                Pagamento via PIX
               </DialogTitle>
-              <p className="text-sm text-muted-foreground">
-                Pague com qualquer banco usando o PIX
+              <p className="text-sm text-emerald-100 mt-0.5">
+                Escaneie ou copie o código para pagar
               </p>
             </div>
 
-            <div className="flex justify-center">
-              <div
-                className="relative p-3 rounded-2xl shadow-lg"
-                style={{
-                  background: "linear-gradient(135deg, #006904, #1f8b2f)",
-                }}
-              >
-                <div className="bg-white p-2 rounded-xl">
+            <div className="p-5 space-y-5">
+              {/* QR Code */}
+              <div className="flex justify-center">
+                <div className="relative p-2.5 rounded-xl bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08)] ring-1 ring-black/5">
                   <img
                     src={`data:image/png;base64,${pixData.qrCodeBase64}`}
                     alt="QR Code PIX"
@@ -402,96 +399,118 @@ export function PixPaymentModal({
                   />
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground text-center">
-                Ou copie o código PIX abaixo:
-              </p>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 bg-muted rounded-lg px-3 py-2.5 text-xs font-mono truncate text-muted-foreground border select-all">
-                  {pixData.qrCodeText}
+              {/* PIX Copia e Cola */}
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground text-center">
+                  Código PIX copia e cola
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 bg-muted/80 rounded-lg px-3.5 py-3 text-xs font-mono leading-relaxed text-muted-foreground border select-all break-all max-h-[72px] overflow-y-auto">
+                    {pixData.qrCodeText}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopy}
+                    className="shrink-0 h-[72px] w-[56px] flex-col gap-1 rounded-lg border-2"
+                  >
+                    {copied ? (
+                      <>
+                        <CheckCircle2 className="w-5 h-5 text-green-600" />
+                        <span className="text-[10px] font-semibold">Copiado</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-5 h-5" />
+                        <span className="text-[10px] font-semibold">Copiar</span>
+                      </>
+                    )}
+                  </Button>
                 </div>
+              </div>
+
+              {/* Status + Timer */}
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
+                    </span>
+                    <span className="text-sm font-semibold text-amber-800">Aguardando pagamento</span>
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                    <Clock className="w-3 h-3" />
+                    {formatTime(elapsed)}
+                  </span>
+                </div>
+                <div className="w-full bg-amber-200/60 rounded-full h-1.5">
+                  <div
+                    className="h-full bg-amber-500 rounded-full transition-all duration-1000 ease-linear"
+                    style={{
+                      width: `${Math.min((elapsed / 600) * 100, 95)}%`,
+                    }}
+                  />
+                </div>
+                <p className="text-xs text-amber-600 text-center">
+                  Estamos verificando seu pagamento automaticamente...
+                </p>
+              </div>
+
+              {/* Order Summary */}
+              <div className="bg-muted/40 rounded-xl divide-y divide-border">
+                <div className="flex items-center justify-between px-4 py-3">
+                  <span className="text-sm text-muted-foreground">Produto</span>
+                  <span className="text-sm font-semibold">{plan.name}</span>
+                </div>
+                <div className="flex items-center justify-between px-4 py-3">
+                  <span className="text-sm text-muted-foreground">Valor</span>
+                  <span className="text-base font-bold text-emerald-700">
+                    {priceFormatted(plan.amount)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between px-4 py-3">
+                  <span className="text-sm text-muted-foreground">Email</span>
+                  <span className="text-sm truncate max-w-[180px] font-medium">{email}</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="space-y-2.5">
                 <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopy}
-                  className="shrink-0 h-10 gap-1.5"
+                  onClick={checkNow}
+                  className="w-full h-12 gap-2 font-heading font-bold text-base shadow-lg hover:shadow-xl transition-all"
+                  style={{
+                    background: "linear-gradient(135deg, #006904 0%, #1f8b2f 100%)",
+                  }}
                 >
-                  {copied ? (
-                    <CheckCircle2 className="w-4 h-4 text-green-600" />
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
-                  {copied ? "Copiado!" : "Copiar"}
+                  <RefreshCw className="w-5 h-5" />
+                  Já paguei! Verificar
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    stopTimers();
+                    setStep("checkout");
+                  }}
+                  className="w-full h-10 text-sm text-muted-foreground"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-1" />
+                  Voltar e escolher outra forma
                 </Button>
               </div>
-            </div>
 
-            <div className="rounded-xl bg-muted/60 p-4 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Produto</span>
-                <span className="font-medium">{plan.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Valor</span>
-                <span className="font-bold text-primary">
-                  {priceFormatted(plan.amount)}
+              {/* Security */}
+              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5" /> Pagamento seguro
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Garantia de 7 dias
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Email</span>
-                <span className="text-sm truncate max-w-[200px]">
-                  {email}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Status</span>
-                <span className="inline-flex items-center gap-1.5 text-amber-600 font-medium text-xs">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
-                  </span>
-                  Aguardando pagamento
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  <span className="tabular-nums">{formatTime(elapsed)}</span>
-                </span>
-                <span>Verificando a cada 2s...</span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
-                <div
-                  className="h-full bg-primary rounded-full transition-all duration-1000 ease-linear"
-                  style={{
-                    width: `${Math.min((elapsed / 120) * 100, 95)}%`,
-                  }}
-                />
-              </div>
-            </div>
-
-            <Button
-              onClick={checkNow}
-              variant="outline"
-              className="w-full h-11 gap-2 text-sm font-medium"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Já paguei! Verificar
-            </Button>
-
-            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1">
-                <Lock className="w-3 h-3" /> Pagamento 100% seguro
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3" /> 7 dias de garantia
-              </span>
             </div>
           </div>
         )}
