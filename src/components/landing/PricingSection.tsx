@@ -105,7 +105,7 @@ export function PricingSection() {
               }}
               className="mt-7 w-full rounded-xl border-2 border-primary px-6 py-3.5 font-heading font-bold text-primary transition-colors hover:bg-secondary"
             >
-              COMPRAR AGORA
+              Quero o Básico
             </button>
           </div>
 
@@ -143,7 +143,7 @@ export function PricingSection() {
               style={{ background: "linear-gradient(135deg, #006904 0%, #1f8b2f 100%)" }}
             >
               <ShoppingCart className="h-5 w-5" />
-              COMPRAR AGORA
+              QUERO O PACOTE COMPLETO
             </button>
             <p className="mt-4 text-center text-xs text-muted-foreground">
               🔒 Pagamento 100% seguro · 🛡️ 7 dias de garantia incondicional
@@ -181,7 +181,7 @@ export function PricingSection() {
               className="upsell-btn-accept"
               id="upsellAccept"
             >
-              COMPRAR AGORA
+              Sim! Quero o Completo por R$19,90 →
             </button>
             <button
               onClick={() => {
@@ -191,7 +191,7 @@ export function PricingSection() {
               className="upsell-btn-decline"
               id="upsellDecline"
             >
-              COMPRAR AGORA
+              Não, prefiro continuar só com o Essencial
             </button>
           </div>
           <div className="upsell-timer">⏳ Esta condição é exibida apenas uma vez</div>
