@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Check, ShoppingCart } from "lucide-react";
-import { PixPaymentModal } from "./PixPaymentModal";
 
 const basicFeatures = [
   "150 dinâmicas de Ciências prontas para uso",
@@ -24,13 +23,10 @@ const premiumFeatures = [
 ];
 
 export function PricingSection() {
-  const [pixModal, setPixModal] = useState<{
-    open: boolean;
-    plan: { name: string; amount: number; externalUrl?: string };
-  }>({ open: false, plan: { name: "", amount: 0 } });
-
   function openPix(plan: { name: string; amount: number; externalUrl?: string }) {
-    setPixModal({ open: true, plan });
+    if (plan.externalUrl) {
+      window.open(plan.externalUrl, "_blank");
+    }
   }
 
   function closeUpsell() {
@@ -155,13 +151,6 @@ export function PricingSection() {
           </div>
         </div>
       </div>
-
-      {/* PIX Payment Modal */}
-      <PixPaymentModal
-        open={pixModal.open}
-        onOpenChange={(open) => setPixModal((prev) => ({ ...prev, open }))}
-        plan={pixModal.plan}
-      />
 
       {/* ===== Popup Upsell (Essencial -> Premium) ===== */}
       <div className="upsell-overlay" id="upsellOverlay" aria-hidden="true">
