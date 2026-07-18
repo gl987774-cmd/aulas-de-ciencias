@@ -97,7 +97,7 @@ export function PixPaymentModal({
   const [copied, setCopied] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [elapsed, setElapsed] = useState(0);
-  const [accessUrl, setAccessUrl] = useState("");
+
   const [paymentId, setPaymentId] = useState<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -113,7 +113,7 @@ export function PixPaymentModal({
       setCopied(false);
       setErrorMsg("");
       setElapsed(0);
-      setAccessUrl("");
+
       setPaymentId(null);
     }
   }, [open]);
@@ -138,7 +138,7 @@ export function PixPaymentModal({
 
   const handlePaid = useCallback(async (paymentIdNum: number) => {
     try {
-      const result = await confirmPurchase({
+      await confirmPurchase({
         data: {
           paymentId: paymentIdNum,
           email,
@@ -149,7 +149,6 @@ export function PixPaymentModal({
           phone: "",
         },
       });
-      setAccessUrl(result.accessUrl);
     } catch (err) {
       console.error("Erro ao confirmar compra:", err);
     }
@@ -536,26 +535,19 @@ export function PixPaymentModal({
               <p className="font-heading font-bold text-green-800 text-sm">
                 ✅ Seu acesso já está liberado
               </p>
-              {accessUrl ? (
-                <a
-                  href={accessUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full h-12 rounded-xl font-heading font-bold text-base text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #006904 0%, #1f8b2f 100%)",
-                  }}
-                >
-                  <Download className="w-5 h-5" />
-                  Acessar meu produto
-                </a>
-              ) : (
-                <div className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-muted text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Liberando acesso...
-                </div>
-              )}
+              <a
+                href="https://drive.google.com/drive/folders/1mVHPgHYJXmJIv1syp3fi-dL87A43AyOt?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full h-12 rounded-xl font-heading font-bold text-base text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #006904 0%, #1f8b2f 100%)",
+                }}
+              >
+                <Download className="w-5 h-5" />
+                Acessar meu produto
+              </a>
               <div className="flex items-center justify-center gap-1.5 text-xs text-green-700">
                 <Mail className="w-3 h-3" />
                 Enviamos um e-mail com seu acesso para{" "}

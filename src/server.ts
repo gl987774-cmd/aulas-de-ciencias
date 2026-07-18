@@ -84,7 +84,7 @@ async function handlePixWebhook(request: Request): Promise<Response> {
 
     confirmOrder(paymentId);
 
-    const host = process.env.SITE_URL || "localhost:3000";
+    const host = process.env.SITE_URL || process.env.VERCEL_URL || "localhost:3000";
     const accessUrl = buildAccessUrl(host, existing.accessToken);
 
     const emailSent = await sendAccessEmail({

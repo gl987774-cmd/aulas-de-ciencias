@@ -1,5 +1,7 @@
 import nodemailer from "nodemailer";
 
+const MATERIAL_URL = "https://drive.google.com/drive/folders/1mVHPgHYJXmJIv1syp3fi-dL87A43AyOt?usp=sharing";
+
 export async function sendAccessEmail(data: {
   email: string;
   name: string;
@@ -31,14 +33,20 @@ export async function sendAccessEmail(data: {
             <h2 style="color:#006904">Parabéns pela sua compra! 🎉</h2>
             <p>Olá, <strong>${data.name}</strong>!</p>
             <p>Recebemos seu pagamento e seu acesso ao <strong>${data.planName}</strong> já está disponível.</p>
-            <a href="${data.accessUrl}"
+            <a href="${MATERIAL_URL}"
                style="display:inline-block;padding:14px 32px;margin:16px 0;
                       background:linear-gradient(135deg,#006904,#1f8b2f);color:#fff;
                       border-radius:12px;text-decoration:none;font-weight:bold;font-size:16px">
-              👉 Acessar meu produto
+              👉 Acessar meu material
             </a>
             <p style="color:#6b7280;font-size:14px">
-              Se tiver qualquer dúvida, basta responder este e-mail.
+              Se o botão não funcionar, copie e cole este link no navegador:
+            </p>
+            <p style="color:#006904;font-size:13px;word-break:break-all;background:#f0fdf4;padding:12px;border-radius:8px">
+              ${MATERIAL_URL}
+            </p>
+            <p style="color:#6b7280;font-size:13px;margin-top:16px">
+              🔗 Link de acesso alternativo: <a href="${data.accessUrl}" style="color:#006904">${data.accessUrl}</a>
             </p>
             <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0" />
             <p style="color:#9ca3af;font-size:12px">
@@ -75,14 +83,20 @@ export async function sendAccessEmail(data: {
               <h2 style="color:#006904">Parabéns pela sua compra! 🎉</h2>
               <p>Olá, <strong>${data.name}</strong>!</p>
               <p>Recebemos seu pagamento e seu acesso ao <strong>${data.planName}</strong> já está disponível.</p>
-              <a href="${data.accessUrl}"
+              <a href="${MATERIAL_URL}"
                  style="display:inline-block;padding:14px 32px;margin:16px 0;
                         background:linear-gradient(135deg,#006904,#1f8b2f);color:#fff;
                         border-radius:12px;text-decoration:none;font-weight:bold;font-size:16px">
-                👉 Acessar meu produto
+                👉 Acessar meu material
               </a>
               <p style="color:#6b7280;font-size:14px">
-                Se tiver qualquer dúvida, basta responder este e-mail.
+                Se o botão não funcionar, copie e cole este link no navegador:
+              </p>
+              <p style="color:#006904;font-size:13px;word-break:break-all;background:#f0fdf4;padding:12px;border-radius:8px">
+                ${MATERIAL_URL}
+              </p>
+              <p style="color:#6b7280;font-size:13px;margin-top:16px">
+                🔗 Link de acesso alternativo: <a href="${data.accessUrl}" style="color:#006904">${data.accessUrl}</a>
               </p>
               <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0" />
               <p style="color:#9ca3af;font-size:12px">

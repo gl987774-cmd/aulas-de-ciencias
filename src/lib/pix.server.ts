@@ -100,7 +100,7 @@ export const confirmPurchase = createServerFn({ method: "POST" })
     return data;
   })
   .handler(async ({ data }) => {
-    const host = process.env.SITE_URL || "localhost:3000";
+    const host = process.env.SITE_URL || process.env.VERCEL_URL || "localhost:3000";
 
     const order = createOrder({
       paymentId: data.paymentId,
